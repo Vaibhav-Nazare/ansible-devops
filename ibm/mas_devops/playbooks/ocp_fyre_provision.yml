@@ -3,6 +3,7 @@
   vars:
     cluster_type: fyre
     ocp_version: "{{ lookup('env', 'OCP_VERSION') | default('4.10', True) }}"
+    cluster_platform: "{{ lookup('env', 'CLUSTER_PLATFORM') | default('x',true) }}"
 
   pre_tasks:
     # For the full set of supported environment variables refer to the playbook documentation
@@ -24,4 +25,8 @@
     - ibm.mas_devops.ocp_verify
 
     # 3. Install OpenShift Container Storage
-    - ibm.mas_devops.ocs
+    - { role: ibm.mas_devops.ocs, when:  cluster_platform == 'x' }
+
+    # 4. Storage class configuration for power
+    - { role: ibm.mas_devops.ocs_power, when: cluster_platform == 'p'}
+
