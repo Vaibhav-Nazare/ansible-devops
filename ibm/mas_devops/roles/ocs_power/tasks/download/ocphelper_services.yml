@@ -1,0 +1,22 @@
+- name: Download nfs-provisioner script
+  get_url:
+    url: https://raw.githubusercontent.com/redhat-cop/ocp4-helpernode/main/files/nfs-provisioner-setup.sh
+    dest: /usr/local/bin/nfs-provisioner-setup.sh
+    mode: 0555
+
+- name: Download nfs-provisioner rbac
+  get_url:
+    url: https://raw.githubusercontent.com/redhat-cop/ocp4-helpernode/main/files/nfs-provisioner-rbac.yaml
+    dest: /usr/local/src/nfs-provisioner-rbac.yaml
+    mode: 0666
+
+- name: Download nfs-provisioner deployment
+  get_url:
+    url: https://raw.githubusercontent.com/redhat-cop/ocp4-helpernode/main/templates/nfs-provisioner-deployment.yaml.j2
+    dest: /usr/local/src/nfs-provisioner-deployment.yaml
+    mode: 0666
+- name: Download nfs-provisioner storageclass
+  get_url:
+    url: https://raw.githubusercontent.com/redhat-cop/ocp4-helpernode/main/files/nfs-provisioner-sc.yaml
+    dest: /usr/local/src/nfs-provisioner-sc.yaml
+    mode: 0666

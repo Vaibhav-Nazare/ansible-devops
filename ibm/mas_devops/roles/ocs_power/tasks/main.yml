@@ -1,0 +1,18 @@
+---
+# tasks file for ocs_power
+# 1. Retrive storage class creation yamls and scripts from ocp4helper_nodes
+# -----------------------------------------------------------------------------
+- include_tasks: tasks/download/ocphelper_services.yml
+
+
+#2. Execute nfs-provisioner script
+- name: "Storage class creation for power"
+  shell:
+      "./nfs-provisioner-setup.sh"
+  args:
+    chdir: "/usr/local/bin/" 
+  register: sc_power
+  
+- name: "Output for sc_power"
+  debug: msg="{{sc_power.stdout_lines}}"
+
