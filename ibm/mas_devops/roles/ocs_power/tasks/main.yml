@@ -1,18 +1,32 @@
 ---
 # tasks file for ocs_power
-# 1. Retrive storage class creation yamls and scripts from ocp4helper_nodes
-# -----------------------------------------------------------------------------
-- include_tasks: tasks/download/ocphelper_services.yml
+- name: "ocs-power : Create Namespace"
+  kubernetes.core.k8s:
+    apply: yes
+    definition: "{{ lookup('template', 'templates/localstorage/namespace.yaml') }}"
+  register: namespace
 
+- name: "ocs_power : Apply Role Bindings"
+  kubernetes.core.k8s:
+    apply: yes
+    definition: "{{ lookup('template', 'templates/nfs-provisioner-rbac.yaml') }}"
+  register: nfs-rbac
 
-#2. Execute nfs-provisioner script
-- name: "Storage class creation for power"
-  shell:
-      "./nfs-provisioner-setup.sh"
-  args:
-    chdir: "/usr/local/bin/" 
-  register: sc_power
-  
-- name: "Output for sc_power"
-  debug: msg="{{sc_power.stdout_lines}}"
+- name: "ocs_power : User policy"
+  kubernetes.core.k8s:
+    apply: yes
+    definition: "{{ lookup('template', 'templates/userpolicy.yaml') }}"
+
+- name: "ocs_power : Apply deployment"
+  kubernetes.core.k8s:
+    apply: yes
+    definition: "{{ lookup('template', 'templates/nfs-provisioner-deployment.yaml') }}"
+  register: nfs-deployment
+
+- name: "ocs_power : Apply SC"
+  kubernetes.core.k8s:
+    apply: yes
+    definition: "{{ lookup('template', 'templates/nfs-provisioner-sc.yaml') }}"
+  register: nfs-sc
+
 

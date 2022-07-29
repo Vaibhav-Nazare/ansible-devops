@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-provisioner
+  labels:
+    app: nfs-client-provisioner
+  # replace with namespace where provisioner is deployed
+  namespace: nfs-provisioner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          # nfs client provisioner image specific to the architecture
+          image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          imagePullPolicy: IfNotPresent
+          vars: 
+            - nfs_path : "/nfsshare/nfsshare/cY"
+            - ip_addr : ansible_default_ipv4.address
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: nfs-storage-provisioner
+              # must match provisioner name in storage class
+              value: nfs-storage
+            - name: NFS_SERVER 
+              # ip address of nfs server
+              value: {{ip_addr}}
+            - name: NFS_PATH 
+              # shared folder on nfs server
+              value: {{nfs_path}}
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            # ip address of nfs server
+            server: {{ip_addr}}
+            # shared folder on nfs server
+            path: {{nfs_path}}
