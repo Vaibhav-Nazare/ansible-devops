@@ -1,32 +1,49 @@
 ---
-# tasks file for ocs_power
+# tasks file for ocs_power 
+- name: install nfs-utils
+  package : 
+    name:
+     - nfs-common 
+     - firewalld
+     - bash-completion     
+    state: latest
+
+- name: enable rpcbind nfslock nfs
+  service:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - rpcbind 
+  #- nfs-server
+
+      # - nfslock
+      #- nfs
+- name: NFS apply change configrue
+  shell: systemctl reload nfs;exportfs -a
+
 - name: "ocs-power : Create Namespace"
   kubernetes.core.k8s:
     apply: yes
-    definition: "{{ lookup('template', 'templates/localstorage/namespace.yaml') }}"
+    definition: "{{ lookup('template', 'templates/namespace.yaml') }}"
   register: namespace
 
 - name: "ocs_power : Apply Role Bindings"
   kubernetes.core.k8s:
     apply: yes
     definition: "{{ lookup('template', 'templates/nfs-provisioner-rbac.yaml') }}"
-  register: nfs-rbac
+  register: nfsrbac
 
 - name: "ocs_power : User policy"
-  kubernetes.core.k8s:
-    apply: yes
-    definition: "{{ lookup('template', 'templates/userpolicy.yaml') }}"
+  shell: "oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:nfs-client-provisioner" 
 
 - name: "ocs_power : Apply deployment"
   kubernetes.core.k8s:
     apply: yes
     definition: "{{ lookup('template', 'templates/nfs-provisioner-deployment.yaml') }}"
-  register: nfs-deployment
+  register: nfsdeployment
 
 - name: "ocs_power : Apply SC"
   kubernetes.core.k8s:
     apply: yes
     definition: "{{ lookup('template', 'templates/nfs-provisioner-sc.yaml') }}"
-  register: nfs-sc
-
-
+  register: nfssc

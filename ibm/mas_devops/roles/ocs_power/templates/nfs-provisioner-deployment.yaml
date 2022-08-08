@@ -24,26 +24,25 @@ spec:
           # nfs client provisioner image specific to the architecture
           image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
           imagePullPolicy: IfNotPresent
-          vars: 
-            - nfs_path : "/nfsshare/nfsshare/cY"
-            - ip_addr : ansible_default_ipv4.address
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
+          vars:
+            - ipaddress : {{ lookup('env','IPADDRESS') }}
           env:
             - name: nfs-storage-provisioner
               # must match provisioner name in storage class
               value: nfs-storage
             - name: NFS_SERVER 
               # ip address of nfs server
-              value: {{ip_addr}}
+              value:  {{ lookup('env','IPADDRESS') }}
             - name: NFS_PATH 
               # shared folder on nfs server
-              value: {{nfs_path}}
+              value: "/nfsshare/nfsshare/cY"
       volumes:
         - name: nfs-client-root
           nfs:
             # ip address of nfs server
-            server: {{ip_addr}}
+            server:  {{ lookup('env','IPADDRESS') }}
             # shared folder on nfs server
-            path: {{nfs_path}}
+            path: "/nfsshare/nfsshare/cY"
