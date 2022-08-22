@@ -1,49 +1,26 @@
 ---
 # tasks file for ocs_power 
-- name: install nfs-utils
-  package : 
-    name:
-     - nfs-common 
-     - firewalld
-     - bash-completion     
-    state: latest
+- name: "Connect to bastion host"
+  shell: | 
+   sshpass -p $FYRE_PASSWORD scp -r ../roles/ocs_power/templates root@api.$CLUSTER_NAME.cp.fyre.ibm.com:/root/nfs
+   sshpass -p $FYRE_PASSWORD ssh -T root@api.$CLUSTER_NAME.cp.fyre.ibm.com <<'EOL'
+   yum install -y -q nfs-utils &&
+   wget -q https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_ppc64le &&
+   chmod +x yq_linux_ppc64le &&
+   mv yq_linux_ppc64le /usr/bin/yq &&
+   firewall-cmd --permanent --add-service=nfs &&
+   firewall-cmd --permanent --add-service=rpc-bind &&
+   firewall-cmd --permanent --add-service=mountd &&
+   EXPORTS=/etc/exports &&
+   mkdir -p "../nfsshare/nfsshare/cY" &&
+   chmod -R 755 "../nfsshare/nfsshare/cY" &&
+   exportfs -rav &&
+   systemctl restart nfs-server &&
+   oc apply -f nfs/namespace.yaml &&
+   oc apply -f nfs/nfs-provisioner-rbac.yaml &&
+   oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:nfs-client-provisioner &&
+   oc apply -f nfs/nfs-provisioner-sc.yaml &&
+   oc create configmap ip-env --from-literal=ipaddress=$(hostname -i) &&
+   oc apply -f nfs/nfs-provisioner-deployment.yaml
+   EOL
 
-- name: enable rpcbind nfslock nfs
-  service:
-    name: "{{ item }}"
-    enabled: yes
-  with_items:
-    - rpcbind 
-  #- nfs-server
-
-      # - nfslock
-      #- nfs
-- name: NFS apply change configrue
-  shell: systemctl reload nfs;exportfs -a
-
-- name: "ocs-power : Create Namespace"
-  kubernetes.core.k8s:
-    apply: yes
-    definition: "{{ lookup('template', 'templates/namespace.yaml') }}"
-  register: namespace
-
-- name: "ocs_power : Apply Role Bindings"
-  kubernetes.core.k8s:
-    apply: yes
-    definition: "{{ lookup('template', 'templates/nfs-provisioner-rbac.yaml') }}"
-  register: nfsrbac
-
-- name: "ocs_power : User policy"
-  shell: "oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:nfs-client-provisioner" 
-
-- name: "ocs_power : Apply deployment"
-  kubernetes.core.k8s:
-    apply: yes
-    definition: "{{ lookup('template', 'templates/nfs-provisioner-deployment.yaml') }}"
-  register: nfsdeployment
-
-- name: "ocs_power : Apply SC"
-  kubernetes.core.k8s:
-    apply: yes
-    definition: "{{ lookup('template', 'templates/nfs-provisioner-sc.yaml') }}"
-  register: nfssc

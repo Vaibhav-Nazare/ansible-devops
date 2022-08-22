@@ -27,22 +27,23 @@ spec:
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
-          vars:
-            - ipaddress : {{ lookup('env','IPADDRESS') }}
           env:
             - name: nfs-storage-provisioner
               # must match provisioner name in storage class
               value: nfs-storage
             - name: NFS_SERVER 
               # ip address of nfs server
-              value:  {{ lookup('env','IPADDRESS') }}
+              valueFrom:
+                configMapKeyRef:
+                  name: ip-env
+                  key: ipaddress
             - name: NFS_PATH 
               # shared folder on nfs server
               value: "/nfsshare/nfsshare/cY"
       volumes:
         - name: nfs-client-root
-          nfs:
-            # ip address of nfs server
-            server:  {{ lookup('env','IPADDRESS') }}
-            # shared folder on nfs server
-            path: "/nfsshare/nfsshare/cY"
+          valueFrom:
+            configMapKeyRef:
+              name: ip-env
+              key: ipaddress
+          path: "/nfsshare/nfsshare/cY"
