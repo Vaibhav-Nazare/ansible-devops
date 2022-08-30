@@ -31,19 +31,17 @@ spec:
             - name: nfs-storage-provisioner
               # must match provisioner name in storage class
               value: nfs-storage
-            - name: NFS_SERVER 
+            - name: NFS_SERVER
               # ip address of nfs server
-              valueFrom:
-                configMapKeyRef:
-                  name: ip-env
-                  key: ipaddress
-            - name: NFS_PATH 
+              value: 10.10.10.60
+            - name: NFS_PATH
               # shared folder on nfs server
               value: "/nfsshare/nfsshare/cY"
       volumes:
         - name: nfs-client-root
-          valueFrom:
-            configMapKeyRef:
-              name: ip-env
-              key: ipaddress
-          path: "/nfsshare/nfsshare/cY"
+          nfs:
+            # ip address of nfs server
+            server: 10.10.10.60
+            # shared folder on nfs server
+            path: "/nfs-share/nfsshare/cY"
+
