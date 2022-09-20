@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  vars:
+    cluster_type: powervs
+    ocp_version: "{{ lookup('env', 'RELEASE_VER') | default('4.10', True) }}"
+
+  pre_tasks:
+    # For the full set of supported environment variables refer to the playbook documentation
+    - name: Check for required environment variables
+      assert:
+        that:
+          - lookup('env', 'IBMCLOUD_APIKEY') != ""
+          - lookup('env', 'CLUSTER_NAME') != ""
+          - lookup('env', 'CLUSTER_TYPE') != ""
+        fail_msg: "One or more required environment variables are not defined"
+
+  roles:
+    # 1. Provision the PowerVS cluster
+    - ibm.mas_devops.ocp_provision
