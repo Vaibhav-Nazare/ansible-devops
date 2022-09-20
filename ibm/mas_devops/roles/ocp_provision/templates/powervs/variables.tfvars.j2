@@ -1,0 +1,20 @@
+ibmcloud_region = {{ ibmcloud_region }}
+ibmcloud_zone = {{ ibmcloud_zone }}
+service_instance_id = {{ service_instance_id }}
+rhel_image_name =  {{ rhel_image_name }}
+rhcos_image_name =  {{ rhcos_image_name }}
+network_name =  {{ network_name }}
+openshift_install_tarball =  {{ openshift_install_tarball }}
+openshift_client_tarball =  {{ openshift_client_tarball }}
+cluster_id_prefix = {{ cluster_id_prefix }}
+cluster_id = {{ cluster_id_prefix }}
+cluster_domain = {{ cluster_id_prefix }}
+storage_type = {{ cluster_id_prefix }}
+volume_size = {{ volume_size }}
+bastion = { memory = {{ bastion_memory }}, processors = {{ bastion_processors }}, count = {{ bastion_count }} }
+bootstrap = { memory = {{ bootstrap_memory }}, processors = {{ bootstrap_processors }}, count = {{ bootstrap_count }} }
+master = { memory = {{ master_memory }}, processors = {{ master_processors }}, count = {{ master_count }} }
+worker = { memory = {{ worker_memory }}, processors = {{ worker_processors }}, count = {{ worker_count }} }
+rhel_subscription_username = {{ rhel_subscription_username }}
+rhel_subscription_password = {{ rhel_subscription_password }}
+pull_secret_file = {{ pull_secret_file }}

@@ -12,7 +12,7 @@ supported_cluster_types:
   - roks
   - rosa
   - ipi
-
+  - powervs
 
 # GPU support (limited)
 # -----------------------------------------------------------------------------
@@ -87,3 +87,48 @@ ipi_config_dir: "{{ ipi_dir }}/config/{{ cluster_name }}"
 
 ocp_installer_dir: "{{ ipi_dir }}/installer/{{ ocp_version }}"
 ocp_installer_exe: "{{ ipi_dir }}/installer/{{ ocp_version }}/openshift-install"
+
+
+## IBM Cloud ppc64le 
+release_ver: "{{ lookup('env', 'RELEASE_VER') | default('4.10', true) }}"
+#terraform_action: "{{ lookup('env', 'ACTION' | default('create', true) }}"
+# Variables to pass the script openshift-install-powervs
+var_file: "{{ lookup('template', 'powervs/variables.tfvars.j2') }}"
+flavor: "{{ lookup('env', 'FLAVOR' | default('', true) }}"
+#force_destroy: "{{ lookup('env', 'FOREC_DESTROY' | default('0', true) }}"
+ignore_os_checks: "{{ lookup('env', 'IGNORE_OS' | default('0', true) }}"
+verbose: "{{ lookup('venvars', 'TF_TRACE' | default('0', true) }}"
+#all_images: "{{ lookup('env', 'DISPLAY_ALL_IMAGES' | default('0', true) }}"
+trace: "{{ lookup('env', 'TRACE' | default('0', true) }}"
+version: "{{ lookup('env', 'VERSION' | default('v1.5.0', true) }}"
+
+
+ibmcloud_region: "{{ lookup('env', 'IBMCLOUD_REGION') }}"
+ibmcloud_zone: "{{ lookup('env', 'IBMCLOUD_ZONE') }}"
+service_instance_id: "{{ lookup('env', 'SERVICE_INSTANCE_ID') }}"
+rhel_image_name: "{{ lookup('env', 'RHEL_IMAGES') }}"
+rhcos_image_name: "{{ lookup('env', 'RHCOS_IMAGES') }}"
+system_type: "s922"
+network_name: "{{ lookup('env', 'network_name') }}"
+openshift_install_tarball: "{{ lookup('env', 'OPENSHIFT_INSTALL_TARBALL') }}"
+openshift_client_tarball: "{{ lookup('env', 'OPENSHIFT_CLIENT_TARBALL') }}"
+cluster_id_prefix: "ocp-410-1"
+cluster_id: "ocp1"
+cluster_domain: "ibm.com"
+bastion_memory: "16" 
+bastion_processors: "1"
+bastion_count: "1"
+bootstrap_memory: "32"
+bootstrap_processors: "0.5"
+bootstrap_count: "1"
+master_memory: "32"
+master_processors: "1"
+master_count: "3"
+worker_memory: "64"
+worker_processors: "1"
+worker_count: "3"
+volume_size: "300"
+storage_type: "none"
+rhel_subscription_username: "{{ lookup('env', 'RHEL_SUBS_USER') }}"
+rhel_subscription_password: "{{ lookup('env', 'RHEL_SUBS_PASSWORD') }}"
+pull_secret_file: "{{ lookup('env', 'PULL_SECRET_FILE') }}"

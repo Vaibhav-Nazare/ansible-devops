@@ -1,0 +1,24 @@
+- name: Create an install directory where all the configurations, logs and data files will be stored.
+  ansible.builtin.file:
+    path: ocp-install-dir
+    state: directory
+    mode: '0755'
+
+- name: Download the script on your system and change the permission to execute
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ocp-power-automation/openshift-install-power/devel/openshift-install-powervs
+    dest: ocp-install-dir/openshift-install-powervs
+    mode: '0755'
+    force: yes
+
+- name: Template a file to ocp-install-dir/variable.tfvars
+  ansible.builtin.template:
+    src: "{{ var_file }}"
+    dest: ocp-install-dir/variable.tfvars
+    mode: '0755'
+
+- name: Install all the required packages/binaries in current directory.
+  ansible.builtin.shell: "sh ocp-install-dir/openshift-install-powervs setup"
+
+# - name: Interactive way to populate the variables file
+#   ansible.builtin.shell: ocp-install-dir/openshift-install-powervs create -var-file ocp-install-dir/variable.tfvars -"{{ verbose }}"
